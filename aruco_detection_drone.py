@@ -3,7 +3,7 @@
 import numpy as np
 import time
 import cv2
-from pfe_pi.msg import Dist
+#from pfe_pi.msg import Dist
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -33,7 +33,7 @@ class ArucoDetection:
 
         
 
-        dist = Dist()
+        #dist = Dist()
 
 
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, dict, parameters=param)
@@ -43,7 +43,7 @@ class ArucoDetection:
             corners = np.asarray(corners)
 
             if corners.size == 8:
-            
+                print("Detection")
                 corners = corners.astype(int)
                 corners = corners.reshape(4,2)
 
@@ -51,7 +51,7 @@ class ArucoDetection:
 
                 point = cv2.drawFrameAxes(cv_image, cam_matrix, dist_coef, rvec[0], tvec[0], 4, 4)
 
-                dist.origin_found = True
+                '''dist.origin_found = True
                 dist.dist_origin = distance
                 dist.x = round(tvec[0][0][0],1)
                 dist.y = round(tvec[0][0][1],1)
@@ -63,8 +63,8 @@ class ArucoDetection:
                     print(" Detection : distance =", dist.dist_origin, "x =", dist.x, "y =", dist.y)
 
                 self.pub.publish(dist)
-
-            #cv2.imshow("Image", img)
+                '''
+            cv2.imshow("Image", cv_image)
 
         
         cv2.destroyAllWindows()
