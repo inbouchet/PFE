@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
 
 import numpy as np
 import time
@@ -13,65 +14,57 @@ class ArucoDetection:
     def __init__(self):
         rospy.init_node("aruco_detection_origin", anonymous=True)
 
-        self.pub = rospy.Publisher("/aruco_detection/dist", Dist, queue_size=10)
+        #self.pub = rospy.Publisher("/aruco_detection/dist", Dist, queue_size=10)
         self.cam = rospy.Subscriber("/sc/rgb/image",Image,self.detection)
-        self.rate = rospy.Rate(75)
-        self.detection()
+        
+    #The function aruco_display is from https://github.com/niconielsen32/ComputerVision/blob/master/ArUco/arucoDetection.py
 
-        rospy.spin()
+    def aruco_display(self,corners, ids, rejected, image):
+	if len(corners) > 0:
+		
+            ids = ids.flatten()
+            
+            for (markerCorner, markerID) in zip(corners, ids):
+                    
+                    corners = markerCorner.reshape((4, 2))
+                    (topLeft, topRight, bottomRight, bottomLeft) = corners
+                    
+                    topRight = (int(topRight[0]), int(topRight[1]))
+                    bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+                    bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+                    topLeft = (int(topLeft[0]), int(topLeft[1]))
+
+                    cv2.line(image, topLeft, topRight, (0, 255, 0), 2)
+                    cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
+                    cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
+                    cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
+                    
+                    cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+                    cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+                    cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
+                    
+                    cv2.putText(image, str(markerID),(topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5, (0, 255, 0), 2)
+                    print("[Inference] ArUco marker ID: {}".format(markerID))
+			
+	return image
+
 
     def detection(self,msg):
         bridge = CvBridge()
         cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
-        matrix = np.load("/home/pi/catkin_ws/src/pfe_pi/MultiMatrix.npz")
-        cam_matrix = matrix["camMatrix"]
-        dist_coef = matrix["distCoef"]
-
         dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100)
 
         param = cv2.aruco.DetectorParameters_create()
 
-        
-
-        #dist = Dist()
 
 
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, dict, parameters=param)
-        
-        if corners:
-            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, 8, cam_matrix, dist_coef)
-            corners = np.asarray(corners)
-
-            if corners.size == 8:
-                print("Detection")
-                corners = corners.astype(int)
-                corners = corners.reshape(4,2)
-
-                distance = np.sqrt(tvec[0][0][2] ** 2 + tvec[0][0][0] ** 2 + tvec[0][0][1] ** 2)
-
-                point = cv2.drawFrameAxes(cv_image, cam_matrix, dist_coef, rvec[0], tvec[0], 4, 4)
-
-                '''dist.origin_found = True
-                dist.dist_origin = distance
-                dist.x = round(tvec[0][0][0],1)
-                dist.y = round(tvec[0][0][1],1)
-
-                # x -> à gauche/à droite
-                # y -> en haut/en bas
-
-                if dist.origin_found:
-                    print(" Detection : distance =", dist.dist_origin, "x =", dist.x, "y =", dist.y)
-
-                self.pub.publish(dist)
-                '''
-            cv2.imshow("Image", cv_image)
-
-        
-        cv2.destroyAllWindows()
-        self.cam.release()
-
-        self.rate.sleep()
+        detected= self.aruco_display(corners,ids,rejected,cv_image)
 
 
-if __name__ == "__main__":
-    ArucoDetection()
+
+
+
+a=ArucoDetection()
+rospy.spin()
