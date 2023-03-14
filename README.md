@@ -1,7 +1,7 @@
 # PFE
 Projet de fin d'études avec Laëtitia Cabrol (Master 2 ASPIC)
 
-# Install and using Structure Core Camera (PX4 Vision Kit) under Linux
+# Install and use Structure Core Camera (PX4 Vision Kit) under Linux
 If you plan to use the camera for development with ROS 1, you have to know that the package is
 only available under ROS Melodic and ROS Kinectic!
 
