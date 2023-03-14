@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="pfe" type="aruco_detection.py" name="aruco_detection" output="screen"/>
+    <node pkg="pfe" type="controller_tb.py" name="controller_tb" output="screen" />
+</launch>
