@@ -14,12 +14,13 @@ class ArucoDetection:
     def __init__(self):
         rospy.init_node("aruco_detection_origin", anonymous=True)
 
-        #self.pub = rospy.Publisher("/aruco_detection/dist", Dist, queue_size=10)
         self.cam = rospy.Subscriber("/sc/rgb/image",Image,self.detection)
+        #self.pub = rospy.Publisher("aruco_detection/dist",Image,self.detection)
         
-    #The function aruco_display is from https://github.com/niconielsen32/ComputerVision/blob/master/ArUco/arucoDetection.py
+#The function aruco_display is from https://github.com/niconielsen32/ComputerVision/blob/master/ArUco/arucoDetection.py
 
     def aruco_display(self,corners, ids, rejected, image):
+        markerID=-1
 	if len(corners) > 0:
 		
             ids = ids.flatten()
@@ -47,7 +48,7 @@ class ArucoDetection:
                             0.5, (0, 255, 0), 2)
                     print("[Inference] ArUco marker ID: {}".format(markerID))
 			
-	return image
+	return markerID
 
 
     def detection(self,msg):
@@ -56,11 +57,27 @@ class ArucoDetection:
         dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100)
 
         param = cv2.aruco.DetectorParameters_create()
-
-
-
+	matrix = np.load("/home/px4vision/catkin_ws/src/pfe/MultiMatrix.npz")
+	cam_matrix = matrix["camMatrix"]
+	dist_coef = matrix["distCoef"]
+	x=-1
+	y=-1
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, dict, parameters=param)
         detected= self.aruco_display(corners,ids,rejected,cv_image)
+	if detected==0:
+            print("origin")
+	    for i in range (len(ids)):
+	    	corners[i] = np.asarray(corners[i])
+		rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0, cam_matrix, dist_coef)
+
+	    	if corners[i].size == 8:
+		    distance = np.sqrt(tvec[0][0][2] ** 2 + tvec[0][0][0] ** 2 + tvec[0][0][1] ** 2)
+        	    x=round(tvec[0][0][0],1)
+		    y=round(tvec[0][0][1],1)
+		    print("y=",y," x=",x," distance=",distance)
+	if detected==1:
+             print("goal")
+
 
 
 
