@@ -45,11 +45,19 @@ class MoveGoal:
         print(angle_to_goal - theta)
 
         if (angle_to_goal - theta) > 0.1:
-            speed.linear.x = 0.0
-            speed.angular.z = 0.3
-        elif (angle_to_goal - theta) < -0.1:
-            speed.linear.x = 0.0
-            speed.angular.z = -0.3
+            if (angle_to_goal - theta) < 2.5:
+                speed.linear.x = 0.0
+                speed.angular.z = 0.3
+            else:
+                speed.linear.x = 0.0
+                speed.angular.z = - 0.3
+        elif (angle_to_goal - theta) < - 0.1:
+            if (angle_to_goal - theta) > - 2.5:
+                speed.linear.x = 0.0
+                speed.angular.z = - 0.3
+            else:
+                speed.linear.x = 0.0
+                speed.angular.z = 0.3
         else:
             speed.linear.x = 0.5
             speed.angular.z = 0.0
