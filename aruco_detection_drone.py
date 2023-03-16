@@ -15,6 +15,7 @@ class ArucoDetection:
         rospy.init_node("aruco_detection_origin", anonymous=True)
 
         self.cam = rospy.Subscriber("/sc/rgb/image",Image,self.detection)
+        self.find_goal=False
         #self.pub = rospy.Publisher("aruco_detection/dist",Image,self.detection)
         
 #The function aruco_display is from https://github.com/niconielsen32/ComputerVision/blob/master/ArUco/arucoDetection.py
@@ -23,30 +24,30 @@ class ArucoDetection:
         markerID=-1
 	if len(corners) > 0:
 		
-            ids = ids.flatten()
+                ids = ids.flatten()
             
-            for (markerCorner, markerID) in zip(corners, ids):
-                    
-                    corners = markerCorner.reshape((4, 2))
-                    (topLeft, topRight, bottomRight, bottomLeft) = corners
-                    
-                    topRight = (int(topRight[0]), int(topRight[1]))
-                    bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
-                    bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
-                    topLeft = (int(topLeft[0]), int(topLeft[1]))
+                for (markerCorner, markerID) in zip(corners, ids):
+                
+                        corners = markerCorner.reshape((4, 2))
+                        (topLeft, topRight, bottomRight, bottomLeft) = corners
+                        
+                        topRight = (int(topRight[0]), int(topRight[1]))
+                        bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+                        bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+                        topLeft = (int(topLeft[0]), int(topLeft[1]))
 
-                    cv2.line(image, topLeft, topRight, (0, 255, 0), 2)
-                    cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
-                    cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
-                    cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
-                    
-                    cX = int((topLeft[0] + bottomRight[0]) / 2.0)
-                    cY = int((topLeft[1] + bottomRight[1]) / 2.0)
-                    cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
-                    
-                    cv2.putText(image, str(markerID),(topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
-                            0.5, (0, 255, 0), 2)
-                    print("[Inference] ArUco marker ID: {}".format(markerID))
+                        cv2.line(image, topLeft, topRight, (0, 255, 0), 2)
+                        cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
+                        cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
+                        cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
+                        
+                        cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+                        cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+                        cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
+                        
+                        cv2.putText(image, str(markerID),(topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5, (0, 255, 0), 2)
+                        print("[Inference] ArUco marker ID: {}".format(markerID))
 			
 	return markerID
 
@@ -64,20 +65,23 @@ class ArucoDetection:
 	y=-1
         corners, ids, rejected = cv2.aruco.detectMarkers(cv_image, dict, parameters=param)
         detected= self.aruco_display(corners,ids,rejected,cv_image)
-	if detected==0:
-            print("origin")
-	    for i in range (len(ids)):
-	    	corners[i] = np.asarray(corners[i])
-		rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0, cam_matrix, dist_coef)
 
-	    	if corners[i].size == 8:
-		    distance = np.sqrt(tvec[0][0][2] ** 2 + tvec[0][0][0] ** 2 + tvec[0][0][1] ** 2)
-        	    x=round(tvec[0][0][0],1)
-		    y=round(tvec[0][0][1],1)
-		    print("y=",y," x=",x," distance=",distance)
-	if detected==1:
-             print("goal")
+        if detected==1:
+                print("goal")
+                self.find_goal=True
+        if self.find_goal==True and detected==0:
+                print("origin")
+                for i in range (len(ids)):
+                        corners[i] = np.asarray(corners[i])
+                        rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0, cam_matrix, dist_coef)
 
+                        if corners[i].size == 8:
+                                distance = np.sqrt(tvec[0][0][2] ** 2 + tvec[0][0][0] ** 2 + tvec[0][0][1] ** 2)
+                                x=round(tvec[0][0][0],1)
+                                y=round(tvec[0][0][1],1)
+                                angle=np.arctan2(x,y)
+                                print("y=",y," x=",x," distance=",distance,"angle",angle)
+                        
 
 
 
