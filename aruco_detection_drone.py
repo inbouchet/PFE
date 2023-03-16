@@ -79,7 +79,7 @@ class ArucoDetection:
                                 distance = np.sqrt(tvec[0][0][2] ** 2 + tvec[0][0][0] ** 2 + tvec[0][0][1] ** 2)
                                 x=round(tvec[0][0][0],1)
                                 y=round(tvec[0][0][1],1)
-                                angle=np.arctan2(x,y)
+                                angle=np.arctan2(y,x)
                                 print("y=",y," x=",x," distance=",distance,"angle",angle)
                         
 
