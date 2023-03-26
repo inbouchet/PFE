@@ -1,5 +1,11 @@
 # PFE
-Projet de fin d'études avec Laëtitia Cabrol (Master 2 ASPIC)
+
+### Launch command lines
+```
+roslaunch structure_core_ros_driver sc.launch
+rosrun pfe aruco_detection_drone.py
+rosrun pfe send_pos.py
+```
 
 # Install and use Structure Core Camera (PX4 Vision Kit) under Linux
 If you plan to use the camera for development with ROS 1, you have to know that the package is
