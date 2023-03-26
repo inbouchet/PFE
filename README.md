@@ -9,12 +9,44 @@ Detailed instructions for reproducing this project are available in the Robot an
 
 ### Turtlebot Waffle PI
 
+- LiDAR 360°
+* Camera Raspberry Pi
++ Microcontroller Raspberry Pi
+- Control card OpenCR
+* Batteries LiPo 11.1 V
++ Wheels & engines
+
 ![ROBOTISTURTLEBOT3WAFFLEPIRPI42GB-1](https://user-images.githubusercontent.com/83234731/227781557-e0ab130a-abce-4f07-913c-98fe144f2c2d.jpg)
 
 
 ### Drone PX4 Vision Kit 1.5
 
+- GPS M8N
+* Batteries LiPo
++ Wifi antennas
+- PixHawk 6C
+* Basic companion computer
++ Depth camera
+- Optical flux and infrared sensor
+* Engines & propellers
+
 ![px4_vision_kit_hero](https://user-images.githubusercontent.com/83234731/227781569-8b670940-040a-4529-90f3-276be90a62c4.jpg)
+
+### System 
+
+Robot (Turtlebot 3 Waffle Pi)
+```
+Ubuntu 20.04
+ROS Noetic
+OpenCR
+```
+
+Drone (PX4 Vision Dev Kit 1.5)
+```
+Ubuntu 18.04
+ROS Melodic
+Occipital Structure Core ROS driver
+```
 
 ### Process
 
