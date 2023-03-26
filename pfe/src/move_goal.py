@@ -31,13 +31,12 @@ class MoveGoal:
         for i in file:
             tab = i.split(" ")
 
-        self.distance = float(tab[2]) * 0.01
-        self.angle = float(tab[3])
+        self.distance = float(tab[2]) + 0.26 # size of turtlebot
+        self.angle = float(tab[3]) 
 
         # Estimate goal position with angle and distance
-        self.goal.x = math.cos(self.angle) * self.distance 
-        self.goal.y = math.sin(self.angle) * self.distance 
-        print(self.goal.x, self.goal.y, self.distance)
+        self.goal.x = math.cos(self.angle) * self.distance * 0.01
+        self.goal.y = math.sin(self.angle) * self.distance * 0.01
 
         file.close()
 
@@ -91,27 +90,26 @@ class MoveGoal:
         new_x = self.around[0, 0] - x
         new_y = self.around[0, 1] - y
 
-        #angle_to_goal = atan2(new_y, new_x)
+        angle_to_goal = atan2(new_y, new_x)
 
         # If the drone is not facing the correct angle to move towards the goal point, adjust its rotation
-        if (self.angle - theta) > 0.1:
-            if (self.angle  - theta) < 2.5:
+        if (angle_to_goal - theta) > 0.1:
+            if (angle_to_goal - theta) < 2.5:
                 speed.linear.x = 0.0
                 speed.angular.z = 0.3
             else:
                 speed.linear.x = 0.0
                 speed.angular.z = - 0.3
-        elif (self.angle - theta) < - 0.1:
-            if (self.angle - theta) > - 2.5:
+        elif (angle_to_goal - theta) < - 0.1:
+            if (angle_to_goal - theta) > - 2.5:
                 speed.linear.x = 0.0
                 speed.angular.z = - 0.3
             else:
                 speed.linear.x = 0.0
                 speed.angular.z = 0.3
         else:
-            speed.linear.x = 0.5
+            speed.linear.x = 0.3
             speed.angular.z = 0.0
-
 
         # Delete the current position in the list of points to go to the next one
         if new_x < 0.1 and new_x > - 0.1 and new_y < 0.1 and new_y > - 0.1:
@@ -122,7 +120,6 @@ class MoveGoal:
             else:
                 speed.linear.x = 0.0
                 speed.angular.z = 0.0
-
 
         self.pub.publish(speed)
         self.rate.sleep()
