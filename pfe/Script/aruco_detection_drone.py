@@ -3,6 +3,7 @@
 
 import numpy as np
 import time
+import math
 import cv2
 from pfe.msg import Pos
 import rospy
@@ -17,6 +18,7 @@ class ArucoDetection:
         self.cam = rospy.Subscriber("/sc/rgb/image",Image,self.detection)
         self.pub = rospy.Publisher("dist",Pos,queue_size=10)
         self.find_goal=False
+        self.first_distance=False
         self.send=False
 	self.tvec1=0
        
@@ -74,22 +76,32 @@ class ArucoDetection:
                 self.find_goal=True
 		for i in range (len(ids)):
 			corners[i] = np.asarray(corners[i])
-			rvec1,self.tvec1 = cv2.aruco.estimatePoseSingleMarkers(corners[i],8.0,cam_matrix,dist_coef)
         if self.find_goal==True and detected==0:
-                print("origin")
-                for i in range (len(ids)):
-                        corners[i] = np.asarray(corners[i])
-                        rvec2, tvec2 = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0,cam_matrix,dist_coef)
-			if corners[i].size==8:
-                        	pos.dist_goal = np.linalg.norm(self.tvec1-tvec2)
-                        	pos.x=round(tvec2[0][0][0],1)
-                        	pos.y=round(tvec2[0][0][1],1)
-                        	pos.angle=np.arctan2(pos.y-round(self.tvec1[0][0][0],1),pos.x-round(self.tvec1[0][0][1],1))
-                        	if(not(self.send)):
-                                	self.pub.publish(pos)
-                                	print("send")
-                                	print("y=",pos.y," x=",pos.x," distance=",pos.dist_goal,"angle",pos.angle)
-                                	self.send=True
+                if(not(self.first_distance)):
+                        print("origin")
+                        for i in range (len(ids)):
+                                corners[i] = np.asarray(corners[i])
+                                rvec1, self.tvec1 = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0,cam_matrix,dist_coef)
+                                self.first_distance=True
+                else:
+                        for i in range (len(ids)):
+                                corners[i] = np.asarray(corners[i])
+                                rvec2, tvec2 = cv2.aruco.estimatePoseSingleMarkers(corners[i], 8.0,cam_matrix,dist_coef)
+                                angle=np.arctan2(round(tvec2[0][0][1],1),round(tvec2[0][0][0],1))
+                                print(angle)
+                                if (angle<-1.56 and angle>-1.58):
+                                        
+                                        if corners[i].size==8:
+
+                                                pos.dist_goal = np.linalg.norm(self.tvec1)
+                                                pos.x=round(self.tvec1[0][0][0],1)
+                                                pos.y=round(self.tvec1[0][0][1],1)
+                                                pos.angle=math.acos(np.linalg.norm(tvec2)/np.linalg.norm(self.tvec1))
+                                                if(not(self.send)):
+                                                        self.pub.publish(pos)
+                                                        print("send")
+                                                        print("y=",pos.y," x=",pos.x," distance=",pos.dist_goal,"angle",pos.angle)
+                                	                self.send=True
                         
 
 
