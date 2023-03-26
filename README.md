@@ -16,7 +16,7 @@ roscore
 If you want to test the Aruco detection with the Robot :
 ```
 export TURTLEBOT3_MODEL=waffle_pi
-roslaunch pfe controller_tb.launch
+roslaunch pfe controller.launch
 ```
 
 If you want to test de communication with the Drone :
