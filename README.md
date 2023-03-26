@@ -5,7 +5,7 @@ This file describes how to launch the turtlebot to reproduce the presented proje
 
 ### Turtlebot side
 ```
-roslaunch turtlebot3_bringup turtlebot3_robot.py
+roslaunch turtlebot3_bringup turtlebot3_robot.launch
 ```
 
 ### Master side
