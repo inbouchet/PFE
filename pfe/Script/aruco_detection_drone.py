@@ -20,7 +20,7 @@ class ArucoDetection:
     '''
 
     def __init__(self):
-        rospy.init_node("aruco_detection_origin", anonymous=True)
+        rospy.init_node("aruco_detection", anonymous=True)
 
 	# Subscribe to camera image topic
         self.cam = rospy.Subscriber("/sc/rgb/image",Image,self.detection)
